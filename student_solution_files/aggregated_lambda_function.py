@@ -21,11 +21,11 @@ import numpy as np  # Array manipulation
 import time
 
 
-# <<< You will need to add additional libraries to complete this script >>>
-
-#fucntion to get time in millisecs
 def current_milli_time():
     return round(time.time() * 1000)
+
+
+# <<< You will need to add additional libraries to complete this script >>>
 
 # ** Insert key phrases function **
 # --- Insert your code here ---
@@ -54,11 +54,9 @@ def key_phrase_finder(list_of_important_phrases, list_of_extracted_phrases):
 
     return listing, PhraseChecker
 
-
 # -----------------------------
 
 # ** Insert sentiment extraction function **
-# --- Insert your code here ---
 def find_max_sentiment(Comprehend_Sentiment_Output):
     sentiment_score = 0
 
@@ -78,14 +76,13 @@ def find_max_sentiment(Comprehend_Sentiment_Output):
 
     return Comprehend_Sentiment_Output['Sentiment'], sentiment_score
 
-
 # -----------------------------
 
 # ** Insert email responses function **
 # --- Insert your code here ---
 def email_response(name, critical_phrase_list, list_of_extracted_phrases, AWS_Comprehend_Sentiment_Dump):
     # Function Constants
-    SENDER_NAME = 'Yussuf Mohamed' # Type in Your Full Name to be used in the response email body.
+    SENDER_NAME = 'Yussuf Mohamed'
 
     # --- Check for the sentiment of the message and find dominant sentiment score ---
     Sentiment_finder = find_max_sentiment(AWS_Comprehend_Sentiment_Dump)
@@ -99,7 +96,7 @@ def email_response(name, critical_phrase_list, list_of_extracted_phrases, AWS_Co
 
     # --- Check for project phrases ---
     Phrase_Matcher_Project = key_phrase_finder(['github', 'git', 'Git',
-                                                'GitHub', 'projects', 'Projects',
+                                                'GitHub', 'projects',
                                                 'portfolio', 'Portfolio'],
                                                list_of_extracted_phrases)
     Matched_Phrases_Project = Phrase_Matcher_Project[0]
@@ -206,7 +203,6 @@ def email_response(name, critical_phrase_list, list_of_extracted_phrases, AWS_Co
 
     return Text
 
-
 # -----------------------------
 
 # Lambda function orchestrating the entire predict logic
@@ -218,6 +214,7 @@ def lambda_handler(event, context):
     # ** Insert code to write to dynamodb **
     # <<< Ensure that the DynamoDB write response object is saved
     #    as the variable `db_response` >>>
+    # --- Insert your code here ---
     # --- Write to dynamodb ---
 
     # ** Create a variable that can take a random value between 1 and 1 000 000 000.
@@ -236,7 +233,7 @@ def lambda_handler(event, context):
     # -----------------------------
 
     # Instantiate the table. Remember pass the name of the DynamoDB table created in step 4
-    table = dynamodb.Table('my-portfolio-data-table') #Enter the Table Name from you Dynamo Database Here
+    table = dynamodb.Table('my-portfolio-data-table-demo')
 
     # ** Write the responses to the table using the put_item method. **
 
@@ -263,7 +260,7 @@ def lambda_handler(event, context):
     # -----------------------------
 
     # --- Insert your code here ---
-    sentiment = comprehend.detect_sentiment(Text=enquiry_text, LanguageCode='en')  # <---Insert code to get the sentiment with AWS comprehend
+    sentiment = comprehend.detect_sentiment(Text=enquiry_text, LanguageCode='en')   # <---Insert code to get the sentiment with AWS comprehend
     # -----------------------------
 
     # --- Insert your code here ---
@@ -279,8 +276,8 @@ def lambda_handler(event, context):
     # <<< Ensure that the response text is stored in the variable `email_text` >>>
     # --- Insert your code here ---
     # Do not change the name of this variable
-    name = dec_dict['name']
-    email_text = email_response(name, ['Projects', 'CV', 'Portfolio', 'github', 'git', 'Git', 'GitHub'], phrase, sentiment)
+    critical_phrases = ['Projects', 'CV', 'Portfolio', 'github', 'git', 'Git', 'GitHub']
+    email_text = email_response(name, key_phrases, phrase, sentiment)
 
     # -----------------------------
 
@@ -290,12 +287,16 @@ def lambda_handler(event, context):
     # `email_text` variable as it's body.
     # <<< Ensure that the SES service response is stored in the variable `ses_response` >>>
     # --- Insert your code here ---
+    # Sample text that you would like to email to your recipient
+    # address from your sender address.
+    #email_text = 'This is to confirm that Emailing works'
+
     # ** SES Functionality **
 
     # Replace sender@example.com with your "From" address.
     # This address must be verified with Amazon SES.
     # --- Insert your code here ---
-    SENDER = 'yussufmohamed608@gmail.com' #Add your AMAZON SES Verified Email Here
+    SENDER = 'yussufmohamed608@gmail.com'
     # -----------------------------
 
     # Replace recipient@example.com with a "To" address. If your account
@@ -325,7 +326,7 @@ def lambda_handler(event, context):
             Destination={
                 'ToAddresses': [
                     RECIPIENT,
-                    #'edsa.predicts@explore-ai.net', # <--- Uncomment this line once you have successfully tested your predict end-to-end
+                    # 'edsa.predicts@explore-ai.net', # <--- Uncomment this line once you have successfully tested your predict end-to-end
                 ],
             },
             Message={
